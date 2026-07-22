@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: bankguard_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bankguard_user
+      POSTGRES_PASSWORD: bankguard_pass
+      POSTGRES_DB: bankguard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - bankguard_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bankguard_user -d bankguard_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  bankguard_pgdata:
