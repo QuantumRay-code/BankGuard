@@ -1,20 +1,9 @@
-import os
 import sys
 from pathlib import Path
-
 import psycopg
-from dotenv import load_dotenv
+from db import get_connection
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
-
-
-def get_connection() -> psycopg.Connection:
-    load_dotenv()
-    database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
-        print("ERROR: DATABASE_URL not set. Check your .env file.")
-        sys.exit(1)
-    return psycopg.connect(database_url)
 
 
 def ensure_migrations_table(conn: psycopg.Connection) -> None:
@@ -39,7 +28,6 @@ def get_applied_versions(conn: psycopg.Connection) -> set[str]:
 def apply_migration(conn: psycopg.Connection, filepath: Path) -> None:
     sql = filepath.read_text(encoding="utf-8")
     statements = [s.strip() for s in sql.split(";") if s.strip()]
-
     with conn.cursor() as cur:
         for statement in statements:
             cur.execute(statement)
@@ -55,18 +43,14 @@ def run_migrations() -> None:
     try:
         ensure_migrations_table(conn)
         applied = get_applied_versions(conn)
-
         migration_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
         if not migration_files:
             print(f"No migration files found in {MIGRATIONS_DIR}")
             return
-
         pending = [f for f in migration_files if f.name not in applied]
-
         if not pending:
             print("Database is already up to date. No migrations to apply.")
             return
-
         for filepath in pending:
             print(f"Applying {filepath.name} ...")
             try:
@@ -76,7 +60,6 @@ def run_migrations() -> None:
                 conn.rollback()
                 print(f"  -> FAILED: {exc}")
                 sys.exit(1)
-
         print(f"\nApplied {len(pending)} migration(s) successfully.")
     finally:
         conn.close()
