@@ -32,7 +32,7 @@ WITHDRAWAL_FRACTION_RANGE = (0.05, 0.35)  # fraction of current balance
 TRANSFER_PARTICIPATION_RATE = 0.40  # fraction of accounts that send >=1 transfer
 TRANSFERS_PER_SENDER_RANGE = (1, 5)
 TRANSFER_FRACTION_RANGE = (0.05, 0.30)  # fraction of sender's current balance
-LARGE_TRANSFER_THRESHOLD = Decimal("10000.00")
+LARGE_TRANSFER_THRESHOLD = Decimal("2500.00")
 
 # --- Channel simulation --------------------------------------------------------
 EMPLOYEE_ASSISTED_RATE = 0.30  # fraction of activity with performed_by_employee_id set
