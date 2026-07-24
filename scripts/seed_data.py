@@ -73,6 +73,30 @@ def update_final_balances(conn, balances: dict[int, Decimal]) -> None:
     conn.commit()
 
 
+def sync_identity_sequences(conn) -> None:
+    """
+    transactions/transfers/audit_logs are bulk-loaded via COPY with
+    explicit id values (computed from MAX(id)+1) for performance, which
+    bypasses each table's IDENTITY sequence entirely — the sequence
+    never advances, so any later INSERT relying on auto-generated ids
+    (e.g. the live API) would collide with rows that already exist.
+    Resetting each sequence to the actual max(id) after seeding fixes
+    this permanently.
+    """
+    tables = ["transactions", "transfers", "audit_logs"]
+    with conn.cursor() as cur:
+        for table in tables:
+            cur.execute(
+                f"""
+                SELECT setval(
+                    pg_get_serial_sequence('{table}', 'id'),
+                    COALESCE((SELECT MAX(id) FROM {table}), 1)
+                )
+                """
+            )
+    conn.commit()
+
+
 def main() -> None:
     args = parse_args()
     customer_count = resolve_customer_count(args)
@@ -148,6 +172,9 @@ def main() -> None:
 
         print("Writing final account balances ...")
         update_final_balances(conn, balances)
+
+        print("Syncing identity sequences ...")
+        sync_identity_sequences(conn)
 
         print(
             f"\nDone. Seeded {len(customer_ids)} customers, {len(account_ids)} accounts, "
