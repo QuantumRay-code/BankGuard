@@ -1,6 +1,8 @@
+from contextlib import contextmanager
 from decimal import Decimal
 
 import psycopg
+import pytest
 
 
 def get_balance(conn: psycopg.Connection, account_id: int) -> Decimal:
@@ -58,3 +60,10 @@ def audit_trail_is_reconciled(conn: psycopg.Connection, account_id: int) -> bool
     if not logs:
         return balance == Decimal("0.00")
     return logs[-1]["balance_after"] == balance
+
+
+@contextmanager
+def expect_db_error(conn, error_type):
+    with pytest.raises(error_type):
+        yield
+    conn.rollback()
