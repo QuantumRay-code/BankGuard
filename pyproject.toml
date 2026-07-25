@@ -23,3 +23,9 @@ dev = [
     "pre-commit>=4.6.1",
     "ruff>=0.15.22",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "--html=reports/report.html --self-contained-html"
