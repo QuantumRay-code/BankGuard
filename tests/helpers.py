@@ -64,6 +64,15 @@ def audit_trail_is_reconciled(conn: psycopg.Connection, account_id: int) -> bool
 
 @contextmanager
 def expect_db_error(conn, error_type):
+    """
+    For tests that deliberately trigger a database constraint violation.
+    Uses a savepoint scoped to just the deliberate bad operation, so any
+    setup data created earlier in the same test survives afterward.
+    """
+    with conn.cursor() as cur:
+        cur.execute("SAVEPOINT expect_error_boundary")
     with pytest.raises(error_type):
         yield
-    conn.rollback()
+    with conn.cursor() as cur:
+        cur.execute("ROLLBACK TO SAVEPOINT expect_error_boundary")
+        cur.execute("RELEASE SAVEPOINT expect_error_boundary")

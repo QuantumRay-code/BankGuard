@@ -70,7 +70,7 @@ def _apply_transaction(
             transaction_type=transaction_type,
             amount=amount,
         )
-        return existing
+        return existing, False
 
     with conn.cursor() as cur:
         if transaction_type == "deposit":
@@ -121,7 +121,7 @@ def _apply_transaction(
                 transaction_type=transaction_type,
                 amount=amount,
             )
-            return existing
+            return existing, False
 
         transaction_id, created_at = cur.fetchone()
 
@@ -150,7 +150,7 @@ def _apply_transaction(
         "amount": amount,
         "balance_after": balance_after,
         "created_at": created_at,
-    }
+    }, True
 
 
 def deposit(
@@ -222,7 +222,7 @@ def transfer(
             to_account_id=to_account_id,
             amount=amount,
         )
-        return existing
+        return existing, False
 
     with conn.cursor() as cur:
         first_id, second_id = sorted([from_account_id, to_account_id])
@@ -295,7 +295,7 @@ def transfer(
                 to_account_id=to_account_id,
                 amount=amount,
             )
-            return existing
+            return existing, False
 
         transfer_id, created_at = cur.fetchone()
 
@@ -344,4 +344,4 @@ def transfer(
         "to_balance_after": to_balance_after,
         "flagged_for_review": flagged,
         "created_at": created_at,
-    }
+    }, True

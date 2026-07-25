@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 import psycopg
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Response
 from fastapi.responses import JSONResponse
 
 from database import get_db, pool
@@ -55,28 +55,49 @@ def handle_idempotency_conflict(request, exc: IdempotencyKeyConflict):
 
 
 @app.post("/deposit", response_model=TransactionResponse, status_code=201)
-def post_deposit(payload: DepositRequest, conn: psycopg.Connection = Depends(get_db)):
-    return ledger_deposit(
+def post_deposit(
+    payload: DepositRequest,
+    response: Response,
+    conn: psycopg.Connection = Depends(get_db),
+):
+    result, created = ledger_deposit(
         conn, payload.account_id, payload.amount, payload.idempotency_key
     )
+    if not created:
+        response.status_code = 200
+    return result
 
 
 @app.post("/withdraw", response_model=TransactionResponse, status_code=201)
-def post_withdraw(payload: WithdrawRequest, conn: psycopg.Connection = Depends(get_db)):
-    return ledger_withdraw(
+def post_withdraw(
+    payload: WithdrawRequest,
+    response: Response,
+    conn: psycopg.Connection = Depends(get_db),
+):
+    result, created = ledger_withdraw(
         conn, payload.account_id, payload.amount, payload.idempotency_key
     )
+    if not created:
+        response.status_code = 200
+    return result
 
 
 @app.post("/transfer", response_model=TransferResponse, status_code=201)
-def post_transfer(payload: TransferRequest, conn: psycopg.Connection = Depends(get_db)):
-    return ledger_transfer(
+def post_transfer(
+    payload: TransferRequest,
+    response: Response,
+    conn: psycopg.Connection = Depends(get_db),
+):
+    result, created = ledger_transfer(
         conn,
         payload.from_account_id,
         payload.to_account_id,
         payload.amount,
         payload.idempotency_key,
     )
+    if not created:
+        response.status_code = 200
+    return result
 
 
 @app.get("/accounts/{account_id}", response_model=AccountResponse)
