@@ -24,7 +24,7 @@ jobs:
       DATABASE_URL: postgresql://bankguard_user:bankguard_pass@localhost:5432/bankguard_db
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
