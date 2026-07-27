@@ -1,4 +1,7 @@
 import psycopg
+import pytest
+
+pytestmark = pytest.mark.smoke
 
 from factories import create_account, create_customer
 from helpers import expect_db_error

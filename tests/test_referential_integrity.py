@@ -1,4 +1,7 @@
 import psycopg
+import pytest
+
+pytestmark = pytest.mark.regression
 
 from factories import create_account, create_branch, create_customer, create_employee
 from helpers import expect_db_error

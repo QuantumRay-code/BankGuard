@@ -1,4 +1,8 @@
 import uuid
+import pytest
+
+pytestmark = pytest.mark.smoke
+
 from decimal import Decimal
 
 from factories import create_account

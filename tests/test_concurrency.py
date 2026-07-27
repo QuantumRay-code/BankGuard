@@ -6,6 +6,8 @@ import httpx
 import psycopg
 import pytest
 
+pytestmark = pytest.mark.regression
+
 from database import pool
 from factories import create_account, create_branch, create_customer, create_employee
 from helpers import count_rows, get_balance

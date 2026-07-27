@@ -21,6 +21,8 @@ dependencies = [
 dev = [
     "black>=26.5.1",
     "pre-commit>=4.6.1",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.15.22",
 ]
 
@@ -29,3 +31,15 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 addopts = "--html=reports/report.html --self-contained-html"
+markers = [
+    "smoke: fast checks that run on every push/PR",
+    "regression: deeper checks including referential integrity, audit validation, and concurrency",
+    "performance: query plan validation against the large dataset profile",
+]
+
+[tool.coverage.run]
+source = ["main", "database", "ledger", "exceptions", "schemas"]
+omit = ["tests/*", "scripts/*"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["E402"]

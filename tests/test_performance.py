@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.performance
+
 from datetime import timedelta
 
 from helpers import get_query_plan, plan_contains_seq_scan
