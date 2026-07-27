@@ -41,8 +41,8 @@ jobs:
       - name: Ruff check
         run: uv run ruff check .
 
-      - name: Black check
-        run: uv run black --check .
+      - name: Ruff format check
+        run: uv run ruff format --check .
 
       - name: Run migrations
         run: uv run python scripts/run_migrations.py
