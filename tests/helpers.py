@@ -3,6 +3,7 @@ from decimal import Decimal
 
 import psycopg
 import pytest
+import json
 
 
 def get_balance(conn: psycopg.Connection, account_id: int) -> Decimal:
@@ -64,11 +65,6 @@ def audit_trail_is_reconciled(conn: psycopg.Connection, account_id: int) -> bool
 
 @contextmanager
 def expect_db_error(conn, error_type):
-    """
-    For tests that deliberately trigger a database constraint violation.
-    Uses a savepoint scoped to just the deliberate bad operation, so any
-    setup data created earlier in the same test survives afterward.
-    """
     with conn.cursor() as cur:
         cur.execute("SAVEPOINT expect_error_boundary")
     with pytest.raises(error_type):
@@ -76,3 +72,18 @@ def expect_db_error(conn, error_type):
     with conn.cursor() as cur:
         cur.execute("ROLLBACK TO SAVEPOINT expect_error_boundary")
         cur.execute("RELEASE SAVEPOINT expect_error_boundary")
+
+
+def get_query_plan(conn, query: str, params=None) -> dict:
+    with conn.cursor() as cur:
+        cur.execute(f"EXPLAIN (FORMAT JSON) {query}", params)
+        row = cur.fetchone()
+    raw = row[0]
+    plan_data = json.loads(raw) if isinstance(raw, str) else raw
+    return plan_data[0]["Plan"]
+
+
+def plan_contains_seq_scan(plan: dict) -> bool:
+    if plan.get("Node Type") == "Seq Scan":
+        return True
+    return any(plan_contains_seq_scan(child) for child in plan.get("Plans", []))
