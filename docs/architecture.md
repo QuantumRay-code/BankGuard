@@ -2,7 +2,7 @@
 
 ## The core reframe
 
-BankGuard's schema and seed data aren't the product - they're the fixture.
+BankGuard's schema and seed data aren't the product - they're the fixture. The automation layer (PostgreSQL + FastAPI + pytest working together) is what's actually being built and demonstrated. Every design decision below is justified against one of two tests:
 
 ---
 

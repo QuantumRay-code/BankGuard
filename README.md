@@ -1,5 +1,6 @@
 ## Overview
 
+
 BankGuard is an automated database validation platform built around a simulated retail banking environment.
 
 The project automates the verification of deposits, withdrawals, and transfers by continuously validating that every operation preserves data integrity across the API and PostgreSQL database.
