@@ -1,3 +1,10 @@
+# BankGuard
+
+!![Python](https://img.shields.io/badge/python-3.13-blue)
+![PostgreSQL](https://img.shields.io/badge/postgresql-17-blue)
+
+---
+
 ## Overview
 
 
